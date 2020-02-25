@@ -23,12 +23,21 @@ import {
 import { todoRef } from './config/firebaseConfig'
 const arrData = [1, 1, 1, 1, 1, 1, 1, 1];
 const App: () => React$Node = () => {
+
+
+  // chỉ cần hiểu 2 hàm add, remove, update của firebase 
+
+
+
   const [value, setValue] = useState([]);
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(false);
   const ref = useRef(todoRef);
   useEffect(() => {
-    todoRef.once("value").then(shapShot => {
+    onFetchFirtime(); // gọi khi bắt đầu  click button fetch 
+  }, [])
+  const onFetchFirtime = () => {
+    todoRef.once("value").then(shapShot => {   // hàm bắt buộc để fetch data 1 lần từ firebase // đđọc trên docs của firebase 
       let data = shapShot.val() ? shapShot.val() : {};
       let todos = { ...data };
       const arrr = Object.keys(todos).map((key) => {
@@ -38,19 +47,13 @@ const App: () => React$Node = () => {
           isEdit: false
         }
       })
-
       setList(arrr);
       setLoading(false);
     })
-    // todoRef.once("value");
-    // return () => todoRef.off("value", shapShot => {
-    //   let data = shapShot.val() ? shapShot.child().child() : {};
-    //   todos = { ...data };
-    // })
-  }, [])
+  }
   useEffect(() => {
 
-    todoRef.on("value", shapShot => {
+    todoRef.on("value", shapShot => {// hàm bắt buộc để lắng nghe sự kiện khi thay đôi (add, remove, edit) // đọc trên docs của firebase 
       let data = shapShot.val() ? shapShot.val() : {};
       let todos = { ...data };
       const arrr = Object.keys(todos).map((key) => {
@@ -62,7 +65,7 @@ const App: () => React$Node = () => {
       })
       setList(arrr)
     });
-    return () => todoRef.off("value", shapShot => {
+    return () => todoRef.off("value", shapShot => {  // remove event  lăng nghe sự kiên thay đổi của fire để không bị  rerender never stop 
       let data = shapShot.val() ? shapShot.child().child() : {};
       todos = { ...data };
     })
@@ -79,7 +82,7 @@ const App: () => React$Node = () => {
   //   console.log("snapshot ", snapshot.val())
   // })
   const onSetValues = (value) => {
-    setValue(value);
+    setValue(value); // onchangeText của input 
   }
   const onAddTodo = () => {
     todoRef.push({
@@ -90,15 +93,15 @@ const App: () => React$Node = () => {
     const _tempList = [...list];
     setValue(item.todo)
     _tempList[index].isEdit = true;
-    setList(_tempList);
+    setList(_tempList); // find item của list để isEdit = true => để edit được 
   }
   const onOk = (key) => {
-    todoRef.child("/" + key).update({ todo: value }).then(() => {
+    todoRef.child("/" + key).update({ todo: value }).then(() => {  // hàm của firebase dể update/ đọc trên docs 
       setValue('')
     })
   }
   const removeTask = (index, key) => {
-    todoRef.child("/" + key).remove((err) => {
+    todoRef.child("/" + key).remove((err) => {  // same above
       if (!err) {
 
       }
@@ -114,7 +117,9 @@ const App: () => React$Node = () => {
           setLoading(true)
         }}
         style={{ height: 40 }}
-        onPress={onAddTodo}><Text>Fetch</Text></TouchableOpacity>
+        onPress={() => {
+          setLoading(true)
+        }}><Text>Fetch</Text></TouchableOpacity>
       <View style={{ flexDirection: "row" }}>
         <TouchableOpacity
           style={{ height: 40, width: 60, backgroundColor: "coral" }}
