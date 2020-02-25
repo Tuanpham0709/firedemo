@@ -1,2 +1,2 @@
 # firedemo
-#  nhớ sủa lại ui
+#  nhớ  lại ui
